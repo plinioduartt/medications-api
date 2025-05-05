@@ -8,7 +8,7 @@ const DupixentMappingSchema = new mongoose.Schema({
 
 export const DupixentMapping = mongoose.model("DupixentMapping", DupixentMappingSchema, "dupixent_mappings");
 export type DupixentMappingDTO = {
-    _id: Types.ObjectId
+    _id?: Types.ObjectId
     indication: string
     icd10_code: string
     drug_name: string

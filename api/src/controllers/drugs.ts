@@ -41,9 +41,6 @@ export class DrugsController {
    *                          allOf:
    *                          - type: object
    *                            properties:
-   *                              _id:
-   *                                type: string
-   *                                description: ID of the mapping
    *                              drug_name:
    *                                type: string
    *                                description: Drug name

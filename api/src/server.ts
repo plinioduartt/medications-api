@@ -27,7 +27,6 @@ export class ExpressServer implements IHttpServer {
   private init(): void {
     const app = express()
     app.use(bodyParser.json())
-    Database.connect()
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
     this.app = app
     this.setupRoutes()

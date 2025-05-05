@@ -12,7 +12,6 @@ export class DrugsDAO implements IDrugsDAO {
 
         return (await DupixentMapping.find(filters).exec())
             .map(item => ({
-                _id: item._id,
                 indication: item.indication,
                 drug_name: item.drug_name,
                 icd10_code: item.icd10_code,
