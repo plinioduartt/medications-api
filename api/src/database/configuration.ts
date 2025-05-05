@@ -5,22 +5,26 @@ export class Database {
 
   /** Alias to singleton */
   static async connect(): Promise<void> {
-    this.getInstance()
+    await this.getInstance()
   }
 
-  static async getInstance(): Promise<mongoose.Mongoose> {
-    if (this.instance) return this.instance
-    if (!process.env.MONGODB_URI) throw new Error('Missing env var: MONGODB_URI')
+  static async getInstance(): Promise<mongoose.Mongoose | undefined> {
+    try {
+      if (this.instance) return this.instance
+      if (!process.env.MONGODB_URI) throw new Error('Missing env var: MONGODB_URI')
 
-    const uri = process.env.MONGODB_URI
-    this.instance = await mongoose.connect(uri, {
-      dbName: process.env.MONGODB_NAME,
-      serverSelectionTimeoutMS: 5000,
-    })
+      const uri = process.env.MONGODB_URI
+      this.instance = await mongoose.connect(uri, {
+        dbName: process.env.MONGODB_NAME,
+        serverSelectionTimeoutMS: 5000,
+      })
 
-    console.log('Connected using Mongoose.')
+      console.log('Connected using Mongoose')
 
-    return this.instance
+      return this.instance
+    } catch (error) {
+      console.log('Database error', error)
+    }
   }
 
   static async close(): Promise<void> {

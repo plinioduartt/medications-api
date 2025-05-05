@@ -1,25 +1,17 @@
-import { MongoMemoryServer } from 'mongodb-memory-server'
-import mongoose from 'mongoose'
+import { GenericContainer, StartedTestContainer } from 'testcontainers'
 
-let mongoServer: MongoMemoryServer
+let container: StartedTestContainer | undefined
 
-beforeAll(() => {
-  MongoMemoryServer.create()
-    .then(async res => {
-      mongoServer = res
-      const uri = mongoServer.getUri()
-      await mongoose.connect(uri)
-      console.log('Connected to in-memory database.')
-    })
-})
+export default async () => {
+  console.log('Setting up testcontainers...')
+  container = await new GenericContainer("mongo:latest")
+    .withExposedPorts(27017)
+    .start()
 
-afterAll(() => {
-  mongoose.connection.dropDatabase()
-    .then(() => {
-      mongoose.connection.close()
-        .then(() => {
-          mongoServer.stop()
-          console.log('In-memory database stopped.')
-        })
-    })
-})
+  const uri = `mongodb://${container.getHost()}:${container.getMappedPort(27017)}`;
+  process.env.MONGODB_URI = uri
+}
+
+export {
+  container
+}

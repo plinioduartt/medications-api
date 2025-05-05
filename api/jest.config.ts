@@ -10,7 +10,6 @@ const config: Config.InitialOptions = {
     coverageDirectory: 'coverage',
     coveragePathIgnorePatterns: [],
     verbose: true,
-    testEnvironment: 'node',
     modulePaths: ['<rootDir>'],
     moduleDirectories: ['node_modules'],
     transform: {
@@ -18,7 +17,10 @@ const config: Config.InitialOptions = {
     },
     testMatch: ['**/?(*.)+(spec|test).[t]s?(x)'],
     modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/node_modules'],
-    setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
+    globalSetup: '<rootDir>/src/tests/setup.ts',
+    globalTeardown: '<rootDir>/src/tests/teardown.ts',
+    setupFilesAfterEnv: ['<rootDir>/src/tests/setupFilesAfterEnv.ts'],
+    testEnvironment: 'node'
 }
 
 export default config

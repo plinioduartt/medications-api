@@ -14,6 +14,17 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  mongo_test:
+    image: mongo:latest
+    container_name: mongo_test
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo_test_data:/data/db
+
   mongo-express:
     image: mongo-express
     container_name: mongo-express
@@ -58,3 +69,4 @@ services:
 
 volumes:
   mongodb_data:
+  mongo_test_data:
