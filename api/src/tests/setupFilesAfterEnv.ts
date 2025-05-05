@@ -1,4 +1,4 @@
-import { Database } from "../database/configuration"
+import { Database } from "../shared/database/configuration"
 
 beforeAll(async () => {
     await Database.connect()

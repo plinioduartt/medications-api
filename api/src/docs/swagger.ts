@@ -15,7 +15,7 @@ export const swaggerSpec = swaggerJSDoc({
     ],
     components: {
       schemas: {
-        DupixentMapping: {
+        Drug: {
           type: 'object',
           properties: {
             _id: {
@@ -41,8 +41,38 @@ export const swaggerSpec = swaggerJSDoc({
           },
           required: ['drug_name', 'indication', 'icd10_code']
         },
+        User: {
+          type: 'object',
+          properties: {
+            _id: {
+              type: 'string',
+              description: 'UUID',
+              example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
+            },
+            name: {
+              type: 'string',
+              description: 'User name',
+              example: 'John'
+            },
+            email: {
+              type: 'string',
+              description: 'User email',
+              example: 'john.lennon@yahoo.com'
+            },
+            password: {
+              type: 'string',
+              description: 'User password',
+            },
+            role: {
+              type: 'string',
+              description: 'User role',
+              enum: ['ADMIN', 'COMMON']
+            },
+          },
+          required: ['name', 'email', 'password', 'role']
+        },
       }
     }
   },
-  apis: ['./src/controllers/*.ts']
+  apis: ['./src/**/*.controller.ts']
 })

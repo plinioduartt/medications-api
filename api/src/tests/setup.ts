@@ -1,4 +1,8 @@
-import { GenericContainer, StartedTestContainer } from 'testcontainers'
+import dotenv from 'dotenv';
+import path from 'node:path';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
+
+dotenv.config({ path: path.resolve(__dirname, `../../.env.test`) });
 
 let container: StartedTestContainer | undefined
 
@@ -14,4 +18,5 @@ export default async () => {
 
 export {
   container
-}
+};
+

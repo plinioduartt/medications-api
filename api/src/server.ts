@@ -3,10 +3,12 @@ import 'dotenv/config'
 import express, { Express } from 'express'
 import { Server } from 'http'
 import swaggerUi from 'swagger-ui-express'
-import { DrugsController } from './controllers/drugs'
-import { DrugsDAO } from './DAO/drugs'
-import { Database } from './database/configuration'
+import { DrugsController } from './drugs/drugs.controller'
+import { DrugsDAO } from './drugs/drugs.dao'
+import { Database } from './shared/database/configuration'
 import { swaggerSpec } from './docs/swagger'
+import { userRouter } from './auth/auth.routes'
+import { drugsRouter } from './drugs/drugs.routes'
 
 type App = Express
 interface IHttpServer {
@@ -41,14 +43,8 @@ export class ExpressServer implements IHttpServer {
   }
 
   private setupRoutes(): void {
-    const drugsDAO = new DrugsDAO()
-    const drugsController = new DrugsController(drugsDAO)
-
-    this.app.get(
-      '/drugs/:drug/mappings',
-      [],
-      drugsController.queryAll.bind(drugsController)
-    )
+    this.app.use('/drugs', drugsRouter)
+    this.app.use('/auth', userRouter)
   }
 
   public open(port: number): void {

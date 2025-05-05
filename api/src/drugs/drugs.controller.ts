@@ -1,5 +1,5 @@
-import { IDrugsDAO } from '../DAO/drugs'
-import { HttpRequest, HttpResponse } from '../types/dtos'
+import { IDrugsDAO } from './drugs.dao'
+import { HttpRequest, HttpResponse } from '../shared/types/dtos'
 
 export class DrugsController {
   constructor(private readonly drugsDAO: IDrugsDAO) { }
@@ -54,12 +54,13 @@ export class DrugsController {
   async queryAll(req: HttpRequest, res: HttpResponse): Promise<void> {
     try {
       const { drug } = req.params
-      if (drug.toLowerCase() !== "dupixent") res.status(404).send("DRUG NOT FOUND")
+      const availableDrugs = ["dupixent"]
+      if (!availableDrugs.includes(drug.toLowerCase())) res.status(404).send("DRUG NOT FOUND")
       const { indication, icd10code } = req.query
       const results = await this.drugsDAO.queryAll(indication as string, icd10code as string)
       res.json(results)
     } catch (error) {
-      console.error("Failed to fetch mappings", error)
+      console.error("Failed to query mappings", error)
       res.status(500).json({ error: "Internal Server Error" })
     }
   }

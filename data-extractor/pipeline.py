@@ -117,7 +117,7 @@ def save_mappings_to_mongo(collection, mapped_results):
 def pipeline(collection):
     try:
         if collection.estimated_document_count() > 0:
-            print("Collection 'dupixent_mappings' already contains data. Pipeline aborted.")
+            print("Collection 'drugs' already contains data. Pipeline aborted.")
             return []
         
         print("Downloading XML from DailyMed...")
@@ -144,7 +144,7 @@ def pipeline(collection):
 def main():
     client = get_mongo_client()
     db = client[os.getenv("MONGODB_NAME")]
-    collection = db["dupixent_mappings"]
+    collection = db["drugs"]
     mapped_results = pipeline(collection)
     save_mappings_to_mongo(collection, mapped_results)
     print("Done!")

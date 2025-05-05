@@ -24,6 +24,7 @@ ICD-10 trained model:
 - [x] Create server
 - [x] Configure swagger
 - [x] Make mappings queryable via an API
+- [x] TDD
 - [ ] Auth (Register and login)
 - [ ] CRUD Create, read, update, and delete drug-indication mappings
 - [ ] GET /programs/:programId queryable via an API

@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import { User } from '../../auth/auth.model'
+import { Drug } from '../../drugs/drugs.model'
 
 export class Database {
   private static instance: mongoose.Mongoose
@@ -18,6 +20,11 @@ export class Database {
         dbName: process.env.MONGODB_NAME,
         serverSelectionTimeoutMS: 5000,
       })
+
+      await Promise.all([
+        User.init(),
+        Drug.init(),
+      ])
 
       console.log('Connected using Mongoose')
 
