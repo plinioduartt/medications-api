@@ -1,8 +1,8 @@
-import { DupixentMapping } from '../database/models/dupixentMapping'
+import { IDrugsDAO } from '../DAO/drugs'
 import { HttpRequest, HttpResponse } from '../types/dtos'
 
 export class DrugsController {
-  constructor() { }
+  constructor(private readonly drugsDAO: IDrugsDAO) { }
 
   /**
    * @swagger
@@ -58,14 +58,8 @@ export class DrugsController {
     try {
       const { drug } = req.params
       if (drug.toLowerCase() !== "dupixent") res.status(404).send("DRUG NOT FOUND")
-
       const { indication, icd10code } = req.query
-
-      const filters: Record<string, RegExp> = {}
-      if (indication) filters.indication = new RegExp(indication as string, "i")
-      if (icd10code) filters.icd10_code = new RegExp(icd10code as string, "i")
-
-      const results = await DupixentMapping.find(filters).exec()
+      const results = await this.drugsDAO.queryAll(indication as string, icd10code as string)
       res.json(results)
     } catch (error) {
       console.error("Failed to fetch mappings", error)

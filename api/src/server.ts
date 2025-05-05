@@ -4,6 +4,7 @@ import express, { Express } from 'express'
 import { Server } from 'http'
 import swaggerUi from 'swagger-ui-express'
 import { DrugsController } from './controllers/drugs'
+import { DrugsDAO } from './DAO/drugs'
 import { Database } from './database/configuration'
 import { swaggerSpec } from './docs/swagger'
 
@@ -41,12 +42,13 @@ export class ExpressServer implements IHttpServer {
   }
 
   private setupRoutes(): void {
-    const drugController = new DrugsController()
+    const drugsDAO = new DrugsDAO()
+    const drugsController = new DrugsController(drugsDAO)
 
     this.app.get(
       '/drugs/:drug/mappings',
       [],
-      drugController.queryAll.bind(drugController)
+      drugsController.queryAll.bind(drugsController)
     )
   }
 
