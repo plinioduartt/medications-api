@@ -11,6 +11,8 @@ export class DrugsController {
    *       summary: Returns the drug indication mapping to ICD-10 code.
    *       description: Returns the drug indication mapping to ICD-10 code. Queryable by `indication` and `icd10code` query parameters.
    *       tags: [Drug]
+   *       security:
+   *         - BearerAuth: []
    *       parameters:
    *         - in: query
    *           name: indication

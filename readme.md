@@ -23,13 +23,20 @@ ICD-10 trained model:
 [ ] API
 - [x] Create server
 - [x] Configure swagger
+- [x] Install Jest for TDD
 - [x] Make mappings queryable via an API
-- [x] TDD
-- [ ] Auth (Register and login)
+- [x] Auth (Register and login)
+- [x] Auth Middlewares
 - [ ] CRUD Create, read, update, and delete drug-indication mappings
 - [ ] GET /programs/:programId queryable via an API
+- [ ] Implement cache strategy
+- [ ] Implement ratelimit strategy
 
 [ ] Frontend
 - [ ] Login
 - [ ] Create new user
 - [ ] CRUD drug-indication
+
+# Default ADMIN user
+email: admin@admin.com
+password: admin

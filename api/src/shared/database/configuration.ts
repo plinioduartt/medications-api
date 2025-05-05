@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { User } from '../../auth/auth.model'
 import { Drug } from '../../drugs/drugs.model'
+import { usersSeed } from './seeds/users'
 
 export class Database {
   private static instance: mongoose.Mongoose
@@ -24,6 +25,10 @@ export class Database {
       await Promise.all([
         User.init(),
         Drug.init(),
+      ])
+
+      await Promise.all([
+        usersSeed()
       ])
 
       console.log('Connected using Mongoose')

@@ -5,6 +5,18 @@ import { ExpressServer } from '../../server'
 jest.setTimeout(60000)
 
 describe('GET /drugs/:drug/mappings', () => {
+  const app = ExpressServer.getInstance().app
+  let adminToken: string
+  const defaultAdminCredentials = {
+    email: 'admin@admin.com',
+    password: 'admin',
+  }
+
+  beforeAll(async () => {
+    const loginAdmin = await request(app).post('/auth/login').send(defaultAdminCredentials)
+    adminToken = loginAdmin.body.token
+  })
+
   it('should return a mapping when valid query params are provided', async () => {
     // Arrange
     await Drug.create({
@@ -19,8 +31,9 @@ describe('GET /drugs/:drug/mappings', () => {
     })
 
     // Act
-    const response = await request(ExpressServer.getInstance().app)
+    const response = await request(app)
       .get('/drugs/dupixent/mappings')
+      .set('Authorization', `Bearer ${adminToken}`)
       .query({ indication: 'Asthma', icd10Code: 'J45' })
 
 
@@ -34,8 +47,9 @@ describe('GET /drugs/:drug/mappings', () => {
     // Arrange
 
     // Act
-    const response = await request(ExpressServer.getInstance().app)
+    const response = await request(app)
       .get('/drugs/unknown-drug/mappings')
+      .set('Authorization', `Bearer ${adminToken}`)
 
     // Assert
     expect(response.status).toBe(404)

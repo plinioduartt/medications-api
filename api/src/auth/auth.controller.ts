@@ -11,6 +11,8 @@ export class AuthController {
    *     summary: Register a new user
    *     description: Registers a new user and returns a token and user data.
    *     tags: [Auth]
+   *     security:
+   *       - BearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -58,6 +60,8 @@ export class AuthController {
    *                       type: string
    *       400:
    *         description: Email unavailable
+   *       403:
+   *         description: Acess denied
    */
   async register(req: HttpRequest, res: HttpResponse): Promise<void> {
     const { name, email, password, role = 'COMMON' } = req.body
