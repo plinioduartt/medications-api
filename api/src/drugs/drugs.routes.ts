@@ -1,9 +1,9 @@
 
 import { Router } from 'express'
 import { DrugsController } from './drugs.controller'
-import { DrugsDAO } from './drugs.dao'
+import { MongooseDrugsDAO } from './drugs.dao'
 
-const drugsDAO = new DrugsDAO()
+const drugsDAO = new MongooseDrugsDAO()
 const drugsController = new DrugsController(drugsDAO)
 
 const drugsRouter = Router()

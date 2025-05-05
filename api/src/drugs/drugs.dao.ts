@@ -4,7 +4,7 @@ export interface IDrugsDAO {
     queryAll(indication: string, icd10code: string): Promise<IDrug[]>
 }
 
-export class DrugsDAO implements IDrugsDAO {
+export class MongooseDrugsDAO implements IDrugsDAO {
     async queryAll(indication: string, icd10code: string): Promise<IDrug[]> {
         const filters: Record<string, RegExp> = {}
         if (indication) filters.indication = new RegExp(indication as string, "i")

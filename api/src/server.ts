@@ -4,12 +4,12 @@ import express, { Express } from 'express'
 import { Server } from 'http'
 import swaggerUi from 'swagger-ui-express'
 import { DrugsController } from './drugs/drugs.controller'
-import { DrugsDAO } from './drugs/drugs.dao'
-import { Database } from './shared/database/configuration'
+import { MongooseDrugsDAO } from './drugs/drugs.dao'
+import { MongoDBDatabase } from './shared/database/mongodb.configuration'
 import { swaggerSpec } from './docs/swagger'
 import { userRouter } from './auth/auth.routes'
 import { drugsRouter } from './drugs/drugs.routes'
-import { authenticate } from './shared/middlewares/auth'
+import { authenticate } from './shared/middlewares/auth.middleware'
 
 type App = Express
 interface IHttpServer {
@@ -65,11 +65,11 @@ export class ExpressServer implements IHttpServer {
     this.server?.close(async (serverError: unknown) => {
       if (serverError) {
         console.log(`Error when trying to close server. Details: ${JSON.stringify(serverError)}`)
-        Database.close()
+        MongoDBDatabase.close()
         process.exit(1)
       } else {
         console.log('Server closed succesfully')
-        Database.close()
+        MongoDBDatabase.close()
         process.exit(0)
       }
     })

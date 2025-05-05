@@ -1,6 +1,6 @@
 import request from 'supertest'
 import { ExpressServer } from '../../server'
-import { generateRandomString } from '../../shared/utils/random-string-generator'
+import { generateRandomString } from '../../shared/utils/random-string-generator.util'
 
 describe('Auth workflow', () => {
   const app = ExpressServer.getInstance().app

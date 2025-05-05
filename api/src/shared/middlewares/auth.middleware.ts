@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { Role } from '../../auth/auth.model'
+import { Role } from '../../auth/user.model'
 
 interface AuthPayload {
   userId: string

@@ -1,9 +1,14 @@
-import bcrypt from 'bcryptjs'
-import { generateToken } from "../shared/utils/generate-token"
 import { HttpRequest, HttpResponse } from "../shared/types/dtos"
-import { User } from "./auth.model"
+import { generateToken } from "../shared/utils/generate-token.util"
+import { ILoginUsecase } from './usecases/login.usecase'
+import { IRegisterUsecase } from './usecases/register.usecase'
 
 export class AuthController {
+  constructor(
+    private readonly loginUsecase: ILoginUsecase,
+    private readonly registerUsecase: IRegisterUsecase
+  ) { }
+
   /**
    * @swagger
    * /auth/register:
@@ -66,20 +71,14 @@ export class AuthController {
   async register(req: HttpRequest, res: HttpResponse): Promise<void> {
     const { name, email, password, role = 'COMMON' } = req.body
 
-    const existingUser = await User.findOne({ email })
-    if (existingUser) {
-      res.status(400).json({ message: 'Email unavailable' })
+    const response = await this.registerUsecase.execute({ name, email, password, role })
+
+    if (!response.ok) {
+      res.status(response.error.status).json({ message: response.error.message })
       return
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const user = new User({ name, email, password: hashedPassword, role })
-    await user.save()
-
-    res.status(201).json({
-      token: generateToken(user._id.toString(), user.role),
-      user: { name, email, role },
-    })
+    res.status(201).json(response.value)
   }
 
   /**
@@ -130,21 +129,13 @@ export class AuthController {
   async login(req: HttpRequest, res: HttpResponse): Promise<void> {
     const { email, password } = req.body
 
-    const user = await User.findOne({ email })
-    if (!user) {
-      res.status(401).json({ message: 'Unauthorized' })
+    const response = await this.loginUsecase.execute({ email, password })
+
+    if (!response.ok) {
+      res.status(response.error.status).json({ message: response.error.message })
       return
     }
 
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) {
-      res.status(401).json({ message: 'Unauthorized' })
-      return
-    }
-
-    res.status(200).json({
-      token: generateToken(user._id.toString(), user.role),
-      user: { name: user.name, email: user.email }
-    })
+    res.status(200).json(response.value)
   }
 }

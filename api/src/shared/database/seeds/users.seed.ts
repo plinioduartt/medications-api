@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { User } from '../../../auth/auth.model'
+import { User } from '../../../auth/user.model'
 
 export const usersSeed = async (): Promise<void> => {
   const adminEmail = 'admin@admin.com'

@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
-import { User } from '../../auth/auth.model'
+import { User } from '../../auth/user.model'
 import { Drug } from '../../drugs/drugs.model'
-import { usersSeed } from './seeds/users'
+import { usersSeed } from './seeds/users.seed'
 
-export class Database {
+export class MongoDBDatabase {
   private static instance: mongoose.Mongoose
 
   /** Alias to singleton */

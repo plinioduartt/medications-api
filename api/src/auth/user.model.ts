@@ -2,7 +2,8 @@ import { Schema, model } from "mongoose"
 
 export type Role = 'ADMIN' | 'COMMON'
 
-export interface IUser extends Document {
+export interface IUser {
+    _id: string
     name: string
     email: string
     password: string

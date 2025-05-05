@@ -1,9 +1,9 @@
-import { Database } from "../shared/database/configuration"
+import { MongoDBDatabase } from "../shared/database/mongodb.configuration"
 
 beforeAll(async () => {
-    await Database.connect()
+    await MongoDBDatabase.connect()
 })
 
 afterAll(async () => {
-    await Database.close()
+    await MongoDBDatabase.close()
 })
