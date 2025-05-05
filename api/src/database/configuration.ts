@@ -1,0 +1,30 @@
+import mongoose from 'mongoose'
+
+export class Database {
+  private static instance: mongoose.Mongoose
+
+  /** Alias to singleton */
+  static async connect(): Promise<void> {
+    this.getInstance()
+  }
+
+  static async getInstance(): Promise<mongoose.Mongoose> {
+    if (this.instance) return this.instance
+    if (!process.env.MONGODB_URI) throw new Error('Missing env var: MONGODB_URI')
+
+    const uri = process.env.MONGODB_URI
+    this.instance = await mongoose.connect(uri, {
+      dbName: process.env.MONGODB_NAME,
+      serverSelectionTimeoutMS: 5000,
+    })
+
+    console.log('Connected using Mongoose.')
+
+    return this.instance
+  }
+
+  static async close(): Promise<void> {
+    await mongoose.disconnect()
+    console.log('Connection closed.')
+  }
+}
