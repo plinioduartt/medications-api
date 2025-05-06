@@ -118,4 +118,4 @@ ICD-10 trained model:
 
 # How would you lead an engineering team to implement and maintain this project?
 
-I would like to have atleast one person specialized and focused in planning data modeling, data extraction, handling and training models, and a DevOps to ensure best environments and pipelines for the team.  All the rest I'm pretty sure that backend developers can handle as normal REST API demands.
+I believe it's essential to have at least one specialist dedicated to data-related responsibilities, someone focused on data modeling, extraction, preprocessing, and model training. Additionally, having a DevOps engineer is crucial to ensure optimal environments and CI/CD pipelines for the team. Beyond these roles, I’m confident that experienced backend developers can efficiently manage the remaining tasks typically involved in building and maintaining REST APIs.
