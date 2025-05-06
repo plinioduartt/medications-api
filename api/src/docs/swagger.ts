@@ -4,7 +4,7 @@ export const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Ballast Lane Backend Challenge',
+      title: 'Backend Challenge',
       version: '1.0.0',
       description: 'Documentation generated with Swagger'
     },
