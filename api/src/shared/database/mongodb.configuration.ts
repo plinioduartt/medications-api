@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { User } from '../../auth/user.model'
-import { Drug } from '../../drugs/drugs.model'
+import { DrugIndication } from '../../drugs/drugs.model'
+import { programsSeed } from './seeds/programs.seed'
 import { usersSeed } from './seeds/users.seed'
 
 export class MongoDBDatabase {
@@ -24,11 +25,12 @@ export class MongoDBDatabase {
 
       await Promise.all([
         User.init(),
-        Drug.init(),
+        DrugIndication.init(),
       ])
 
       await Promise.all([
-        usersSeed()
+        usersSeed(),
+        programsSeed()
       ])
 
       console.log('Connected using Mongoose')

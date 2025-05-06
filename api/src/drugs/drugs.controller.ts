@@ -1,12 +1,15 @@
-import { IDrugsDAO } from './drugs.dao'
+import { ObjectId } from 'mongodb'
 import { HttpRequest, HttpResponse } from '../shared/types/dtos'
+import { IDrugsDAO } from './drugs.dao'
+import { DrugIndication } from './drugs.model'
+import { createDrugIndicationSchema, updateDrugIndicationSchema } from './request-schemas/drugs'
 
 export class DrugsController {
   constructor(private readonly drugsDAO: IDrugsDAO) { }
 
   /**
    * @swagger
-   * /drugs/:drug/mappings:
+   * /drugs/:drugName/indications:
    *   get:
    *       summary: Returns the drug indication mapping to ICD-10 code.
    *       description: Returns the drug indication mapping to ICD-10 code. Queryable by `indication` and `icd10code` query parameters.
@@ -54,16 +57,234 @@ export class DrugsController {
    *                                description: ICD-10 Code for a indication and usage
    */
   async queryAll(req: HttpRequest, res: HttpResponse): Promise<void> {
-    try {
-      const { drug } = req.params
-      const availableDrugs = ["dupixent"]
-      if (!availableDrugs.includes(drug.toLowerCase())) res.status(404).send("DRUG NOT FOUND")
-      const { indication, icd10code } = req.query
-      const results = await this.drugsDAO.queryAll(indication as string, icd10code as string)
-      res.json(results)
-    } catch (error) {
-      console.error("Failed to query mappings", error)
-      res.status(500).json({ error: "Internal Server Error" })
+    const { drugName } = req.params
+    const availableDrugs = ["dupixent"]
+    if (!availableDrugs.includes(drugName.toLowerCase())) res.status(404).send("DRUG NOT FOUND")
+    const { indication, icd10code } = req.query
+    const results = await this.drugsDAO.queryAll(indication as string, icd10code as string)
+    res.json(results)
+  }
+
+  /**
+   * @swagger
+   * /drugs/:drugName/indications:
+   *   post:
+   *     summary: Create a drug indication mapping
+   *     tags: [Drug]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: drugName
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - drugName
+   *               - indication
+   *               - icd10Code
+   *             properties:
+   *               drugName:
+   *                 type: string
+   *               indication:
+   *                 type: string
+   *               icd10Code:
+   *                 type: string
+   *     responses:
+   *       201:
+   *         description: Created successfully
+   */
+  async create(req: HttpRequest, res: HttpResponse) {
+    const { error } = createDrugIndicationSchema.validate(req.body, { abortEarly: false })
+
+    if (error) {
+      res.status(400).json({ errors: error.details.map(err => err.message) })
+      return
     }
+
+    const { drugName } = req.params
+    const { indication, icd10Code } = req.body
+
+    const existingIndication = await DrugIndication.findOne({
+      drug_name: drugName.toLowerCase(),
+      icd10_code: icd10Code
+    })
+
+    if (existingIndication) {
+      res.status(409).json({ message: 'Indication already exists for this drug and ICD-10 code' })
+      return
+    }
+
+    const entry = new DrugIndication({ drug_name: drugName.toLowerCase(), indication, icd10_code: icd10Code })
+    await entry.save()
+    res.status(201).json(entry)
+  }
+
+  /**
+   * @swagger
+   * /drugs/:drugName/indications/:indicationId:
+   *   get:
+   *     summary: Get a drug indication mapping by ID
+   *     tags: [Drug]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: drugName
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *       - name: indicationId
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Mapping found
+   *       404:
+   *         description: Not found
+   */
+  async findById(req: HttpRequest, res: HttpResponse) {
+    const { drugName, indicationId } = req.params
+
+    if (!ObjectId.isValid(indicationId)) {
+      res.status(400).json({ message: 'Invalid indicationId' })
+      return
+    }
+
+    const entry = await DrugIndication.findById(indicationId)
+    if (!entry || entry.drug_name.toLowerCase() !== drugName.toLowerCase()) {
+      res.status(404).json({ message: 'Not found' })
+      return
+    }
+    res.status(200).json(entry)
+  }
+
+  /**
+   * @swagger
+   * /drugs/:drugName/indications/:indicationId:
+   *   patch:
+   *     summary: Update a drug indication mapping
+   *     tags: [Drug]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: drugName
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *       - name: indicationId
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               indication:
+   *                 type: string
+   *               icd10Code:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: Updated successfully
+   *       404:
+   *         description: Not found
+   */
+  async update(req: HttpRequest, res: HttpResponse) {
+    const { error } = updateDrugIndicationSchema.validate(req.body, { abortEarly: false })
+
+    if (error) {
+      res.status(400).json({ errors: error.details.map(err => err.message) })
+      return
+    }
+
+    const { drugName, indicationId } = req.params
+
+    if (!ObjectId.isValid(indicationId)) {
+      res.status(400).json({ message: 'Invalid indicationId' })
+      return
+    }
+
+    const entry = await DrugIndication.findById(indicationId)
+    if (!entry || entry.drug_name.toLowerCase() !== drugName.toLowerCase()) {
+      res.status(404).json({ message: 'Not found' })
+      return
+    }
+
+    const { icd10Code, ...restBody } = req.body
+    const updateData = { ...restBody, icd10_code: icd10Code }
+
+    const update = await DrugIndication.findByIdAndUpdate(
+      indicationId,
+      updateData,
+      { new: true }
+    )
+
+    if (!update) {
+      res.status(404).json({ message: 'Not found' })
+      return
+    }
+
+    res.status(200).json(update)
+  }
+
+  /**
+   * @swagger
+   * /drugs/:drugName/indications/:indicationId:
+   *   delete:
+   *     summary: Delete a drug indication mapping
+   *     tags: [Drug]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: drugName
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *       - name: indicationId
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       204:
+   *         description: Deleted successfully
+   *       404:
+   *         description: Not found
+   */
+  async delete(req: HttpRequest, res: HttpResponse) {
+    const { drugName, indicationId } = req.params
+
+    if (!ObjectId.isValid(indicationId)) {
+      res.status(400).json({ message: 'Invalid indicationId' })
+      return
+    }
+
+    const entry = await DrugIndication.findById(indicationId)
+    if (!entry || entry.drug_name.toLowerCase() !== drugName.toLowerCase()) {
+      res.status(404).json({ message: 'Not found' })
+      return
+    }
+
+    const deleted = await DrugIndication.findByIdAndDelete(indicationId)
+    if (!deleted) {
+      res.status(404).json({ message: 'Not found' })
+      return
+    }
+    res.status(204).send()
   }
 }

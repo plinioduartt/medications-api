@@ -27,8 +27,9 @@ ICD-10 trained model:
 - [x] Make mappings queryable via an API
 - [x] Auth (Register and login)
 - [x] Auth Middlewares
-- [ ] CRUD Create, read, update, and delete drug-indication mappings
-- [ ] GET /programs/:programId queryable via an API
+- [x] CRUD Create, read, update, and delete drug-indication mappings
+- [x] GET /programs/:programId queryable via an API
+- [ ] Refactor to decouple layers
 - [ ] Implement cache strategy
 - [ ] Implement ratelimit strategy
 

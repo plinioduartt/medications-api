@@ -117,7 +117,7 @@ def save_mappings_to_mongo(collection, mapped_results):
 def pipeline(collection):
     try:
         if collection.estimated_document_count() > 0:
-            print("Collection 'drugs' already contains data. Pipeline aborted.")
+            print("Collection 'drug_indications' already contains data. Pipeline aborted.")
             return []
         
         print("Downloading XML from DailyMed...")
@@ -131,7 +131,7 @@ def pipeline(collection):
         results = []
         for indication in indications:
             icd10 = get_icd10(indication)
-            results.append({"drug_name": drug_name, "indication": indication, "icd10_code": icd10})
+            results.append({"drug_name": drug_name.lower(), "indication": indication, "icd10_code": icd10})
 
         return results
     except Exception as e:
@@ -144,7 +144,7 @@ def pipeline(collection):
 def main():
     client = get_mongo_client()
     db = client[os.getenv("MONGODB_NAME")]
-    collection = db["drugs"]
+    collection = db["drug_indications"]
     mapped_results = pipeline(collection)
     save_mappings_to_mongo(collection, mapped_results)
     print("Done!")

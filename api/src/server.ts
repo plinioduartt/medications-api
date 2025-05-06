@@ -10,6 +10,7 @@ import { swaggerSpec } from './docs/swagger'
 import { userRouter } from './auth/auth.routes'
 import { drugsRouter } from './drugs/drugs.routes'
 import { authenticate } from './shared/middlewares/auth.middleware'
+import { programsRouter } from './programs/programs.routes'
 
 type App = Express
 interface IHttpServer {
@@ -44,6 +45,7 @@ export class ExpressServer implements IHttpServer {
   }
 
   private setupRoutes(): void {
+    this.app.use('/programs', [authenticate], programsRouter)
     this.app.use('/drugs', [authenticate], drugsRouter)
     this.app.use('/auth', userRouter)
   }

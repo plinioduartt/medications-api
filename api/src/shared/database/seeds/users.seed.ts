@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { User } from '../../../auth/user.model'
 
-export const usersSeed = async (): Promise<void> => {
+export async function usersSeed(): Promise<void> {
   const adminEmail = 'admin@admin.com'
 
   const existingAdmin = await User.findOne({ email: adminEmail })
