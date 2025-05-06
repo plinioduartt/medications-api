@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { Program } from './program.model'
+import { customNodeCache } from '../shared/utils/cache.util'
 
 export class ProgramsController {
   /**
@@ -40,6 +41,14 @@ export class ProgramsController {
       return
     }
 
+    const cacheKey = `programs:queryAll:programId=${programId}:drugName=${drugName}`
+    const cached = customNodeCache.get(cacheKey)
+
+    if (cached) {
+      res.status(200).json(cached)
+      return
+    }
+
     let query = Program.findById(programId)
 
     if (drugName) {
@@ -57,6 +66,8 @@ export class ProgramsController {
       res.status(404).json({ message: 'Program not found' })
       return
     }
+
+    customNodeCache.set(cacheKey, program, 5 * 60 * 1000)
 
     res.status(200).json(program)
   }

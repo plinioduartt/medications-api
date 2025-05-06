@@ -1,7 +1,7 @@
-import { ObjectId } from 'mongodb'
 import { HttpRequest, HttpResponse } from '../shared/types/dtos'
+import { customNodeCache } from '../shared/utils/cache.util'
+import { IsValidId } from '../shared/utils/is-valid-mongoose-object-id.util'
 import { IDrugsDAO } from './drugs.dao'
-import { DrugIndication } from './drugs.model'
 import { createDrugIndicationSchema, updateDrugIndicationSchema } from './request-schemas/drugs'
 
 export class DrugsController {
@@ -61,8 +61,20 @@ export class DrugsController {
     const availableDrugs = ["dupixent"]
     if (!availableDrugs.includes(drugName.toLowerCase())) res.status(404).send("DRUG NOT FOUND")
     const { indication, icd10code } = req.query
+
+    const cacheKey = `drugs:queryAll:drugName=${drugName}:indication=${indication}:icd10Code=${icd10code}`
+    const cached = customNodeCache.get(cacheKey)
+
+    if (cached) {
+      res.status(200).json(cached)
+      return
+    }
+
     const results = await this.drugsDAO.queryAll(indication as string, icd10code as string)
-    res.json(results)
+
+    customNodeCache.set(cacheKey, results, 5 * 60 * 1000)
+
+    res.status(200).json(results)
   }
 
   /**
@@ -111,18 +123,14 @@ export class DrugsController {
     const { drugName } = req.params
     const { indication, icd10Code } = req.body
 
-    const existingIndication = await DrugIndication.findOne({
-      drug_name: drugName.toLowerCase(),
-      icd10_code: icd10Code
-    })
+    const existingIndication = await this.drugsDAO.findByDrugNameAndIcd10Code(drugName, icd10Code)
 
     if (existingIndication) {
       res.status(409).json({ message: 'Indication already exists for this drug and ICD-10 code' })
       return
     }
 
-    const entry = new DrugIndication({ drug_name: drugName.toLowerCase(), indication, icd10_code: icd10Code })
-    await entry.save()
+    const entry = await this.drugsDAO.create({ drugName, indication, icd10Code })
     res.status(201).json(entry)
   }
 
@@ -154,16 +162,18 @@ export class DrugsController {
   async findById(req: HttpRequest, res: HttpResponse) {
     const { drugName, indicationId } = req.params
 
-    if (!ObjectId.isValid(indicationId)) {
+    if (!IsValidId.isSatisfiedBy(indicationId)) {
       res.status(400).json({ message: 'Invalid indicationId' })
       return
     }
 
-    const entry = await DrugIndication.findById(indicationId)
+    const entry = await this.drugsDAO.findByIndicationId(indicationId)
+
     if (!entry || entry.drug_name.toLowerCase() !== drugName.toLowerCase()) {
       res.status(404).json({ message: 'Not found' })
       return
     }
+
     res.status(200).json(entry)
   }
 
@@ -213,12 +223,12 @@ export class DrugsController {
 
     const { drugName, indicationId } = req.params
 
-    if (!ObjectId.isValid(indicationId)) {
+    if (!IsValidId.isSatisfiedBy(indicationId)) {
       res.status(400).json({ message: 'Invalid indicationId' })
       return
     }
 
-    const entry = await DrugIndication.findById(indicationId)
+    const entry = await this.drugsDAO.findByIndicationId(indicationId)
     if (!entry || entry.drug_name.toLowerCase() !== drugName.toLowerCase()) {
       res.status(404).json({ message: 'Not found' })
       return
@@ -227,11 +237,7 @@ export class DrugsController {
     const { icd10Code, ...restBody } = req.body
     const updateData = { ...restBody, icd10_code: icd10Code }
 
-    const update = await DrugIndication.findByIdAndUpdate(
-      indicationId,
-      updateData,
-      { new: true }
-    )
+    const update = await this.drugsDAO.updateByIndicationId(indicationId, updateData)
 
     if (!update) {
       res.status(404).json({ message: 'Not found' })
@@ -269,18 +275,20 @@ export class DrugsController {
   async delete(req: HttpRequest, res: HttpResponse) {
     const { drugName, indicationId } = req.params
 
-    if (!ObjectId.isValid(indicationId)) {
+    if (!IsValidId.isSatisfiedBy(indicationId)) {
       res.status(400).json({ message: 'Invalid indicationId' })
       return
     }
 
-    const entry = await DrugIndication.findById(indicationId)
+    const entry = await this.drugsDAO.findByIndicationId(indicationId)
+
     if (!entry || entry.drug_name.toLowerCase() !== drugName.toLowerCase()) {
       res.status(404).json({ message: 'Not found' })
       return
     }
 
-    const deleted = await DrugIndication.findByIdAndDelete(indicationId)
+    const deleted = await this.drugsDAO.deleteByIndicationId(indicationId)
+
     if (!deleted) {
       res.status(404).json({ message: 'Not found' })
       return

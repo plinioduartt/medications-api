@@ -3,14 +3,13 @@ import 'dotenv/config'
 import express, { Express } from 'express'
 import { Server } from 'http'
 import swaggerUi from 'swagger-ui-express'
-import { DrugsController } from './drugs/drugs.controller'
-import { MongooseDrugsDAO } from './drugs/drugs.dao'
-import { MongoDBDatabase } from './shared/database/mongodb.configuration'
-import { swaggerSpec } from './docs/swagger'
 import { userRouter } from './auth/auth.routes'
+import { swaggerSpec } from './docs/swagger'
 import { drugsRouter } from './drugs/drugs.routes'
-import { authenticate } from './shared/middlewares/auth.middleware'
 import { programsRouter } from './programs/programs.routes'
+import { MongoDBDatabase } from './shared/database/mongodb.configuration'
+import { authenticate } from './shared/middlewares/auth.middleware'
+import { rateLimit } from './shared/middlewares/rate-limit.middleware'
 
 type App = Express
 interface IHttpServer {
@@ -32,6 +31,7 @@ export class ExpressServer implements IHttpServer {
     const app = express()
     app.use(bodyParser.json())
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+    app.use(rateLimit({ maxRequests: 100, timeWindow: 1000 }))
     this.app = app
     this.setupRoutes()
     this.unhandledOperations()
